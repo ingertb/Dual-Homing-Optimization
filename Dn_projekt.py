@@ -159,47 +159,6 @@ data.head(len(data))
 dat_node.head(len(dat_node))
 
 
-# In[30]:
-
-
-list_ep=[]
-list_ser = []
-for i in range (1, len(dat_node)+1):
-    if dat_node['type'][i][0:1] == 'E':
-        list_ep.append(dat_node['id'][i])
-    if dat_node['type'][i][0:1] == 'S':
-        list_ser.append(dat_node['id'][i])
-
-        
-adj = list(nx.neighbors(Network, 3))        
-adj = list(nx.neighbors(Network, adj[0])) 
-
-list_ser1 = []
-list_ep1=[]
-
-for i in range (len(adj)):
-    for j in range (len(list_ser)):
-        if adj[i] == list_ser[i]:
-            list_ser1.append(adj[i])            
-            break
-print (list_ser1)             
-
-for i in range (len(adj)):
-    adj2 = list(nx.neighbors(Network, adj[i]))   
-    if len(adj2) == 1:
-        list_ep1.append(adj2[0])
-    print (adj2)
-    
-print (adj)        
-        
-        
-#for i in range(1, len(data)+1):
-    
-    
-print(list_ep1)        
-print(list_ep)
-print(list_ser)
-
 
 # In[8]:
 
