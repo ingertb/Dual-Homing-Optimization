@@ -56,6 +56,10 @@ minimize z: sum{e in E} (K[e]*y[e]);
 #Ograniczenia: bifurcated and non-bifurcated
 #-----------------------------------------------------------------------
 #Wielkość  przepływności  zapotrzebowań na łuku
+
+
+
+
 s.t. c1{d in D, v in (VS)} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = 1;
 s.t. c2{d in D, v in V diff (VS) : v != t[d]} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = 0;
 s.t. c3{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = -Pn;
@@ -63,7 +67,7 @@ s.t. c3{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B
 s.t. c5 {e in E, d in D} : sum {p in P} x[e,d,p] >= u[e,d];
 s.t. c6{d in D, v in V : v == t[d]} : sum{e in E} (A[e,v]*u[e,d] - B[e,v]*u[e,d]) = -2;
 
-#s.t. disjoint4{e in E, d in D, p in P, l in P : l != p} : x[e,d,p]+x[e,d,l] <= 1;
+s.t. c7 {e in E, d in D}: sum {p in P} x[e,d,p] <= Pn-1;
 s.t. c4{e in E} : sum{d in D, p in P} x[e,d,p] = y[e];
 
 #-----------------------------------------------------------------------
@@ -73,13 +77,11 @@ data;
 param En := 16; 
 param Dn := 1; 
 param Vn := 10; 
-param Pn := 5; 
+param Pn := 3; 
 set VS := 
 			1
 			3
-			5
 			2
-			6
 ; 
 set VH := 
 			5
@@ -116,7 +118,7 @@ param : A :=
        13 7   1       
        
        16 9   1
-       14 8  1;
+       14 10  1;
 #----------------------------------------------------------------------- 
 #węzłe-łącze  Bev(e,v) 
 param : B :=
@@ -137,7 +139,7 @@ param : B :=
        10 7   1
        
        11 8   1
-       14 10   1 
+       14 8   1 
        
        12 9   1
        15 9   1
