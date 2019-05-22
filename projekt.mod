@@ -4,7 +4,7 @@
 param Vn, integer, >= 2;  #Number of nodes
 param En, integer, >= 1;  #Number of links
 param Dn, integer, >= 1;  #Number of demansd
-param Pn, integer, >= 1;  #Number of paths to servers
+param Pn, integer, >= 1;  #Number of servers (path from each server)
  
 #-----------------------------------------------------------------------
 #***********************************************************************
@@ -49,30 +49,25 @@ minimize z: sum{e in E} (K[e]*y[e]);
 #-----------------------------------------------------------------------
 #Ograniczenia: bifurcated and non-bifurcated
 #-----------------------------------------------------------------------
-#The size of the demand on the link
-s.t. c1f{d in D, v in (VS)} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = f[d,v];
-s.t. c2f{p in (P), d in D, v in V diff (VS) : v != t[d]} : sum{e in E} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = 0;
-s.t. c3f{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = -f[d,v];
 
 #Bifurcation of the paths
-s.t. c1b{d in D, v in (VS)} : sum{e in E, p in (P)} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = 1;
-s.t. c2b{p in (P), d in D, v in V diff (VS) : v != t[d]} : sum{e in E} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = 0;
-s.t. c3b{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = -Pn;
+s.t. paths_from_source_nodes{d in D, v in (VS)} : sum{e in E, p in (P)} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = 1;
+s.t. transit_paths{p in (P), d in D, v in V diff (VS) : v != t[d]} : sum{e in E} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = 0;
+s.t. paths_to_target_node{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*u[e,d,p] - B[e,v]*u[e,d,p]) = -Pn;
+s.t. available_links{e in E, d in D} : sum {p in P} u[e,d,p] >= ue[e,d];
+s.t. minimum_links_to_target{d in D, v in V : v == t[d]} : sum{e in E} (A[e,v]*ue[e,d] - B[e,v]*ue[e,d]) = -2;
+s.t. minimum_transit_links{e in E, d in D}: sum {p in P} u[e,d,p] <= Pn-1;
 
-s.t. c4b{e in E, d in D} : sum {p in P} u[e,d,p] >= ue[e,d];
-s.t. c5b{d in D, v in V : v == t[d]} : sum{e in E} (A[e,v]*ue[e,d] - B[e,v]*ue[e,d]) = -2;
-s.t. c6b{e in E, d in D}: sum {p in P} u[e,d,p] <= Pn-1;
+#The size of the demand on the link
+s.t. outgoing_flow{d in D, v in (VS)} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = f[d,v];
+s.t. transit_flow{p in (P), d in D, v in V diff (VS) : v != t[d]} : sum{e in E} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = 0;
+s.t. incoming_flow{d in D, v in V : v == t[d]} : sum{e in E, p in (P)} (A[e,v]*x[e,d,p] - B[e,v]*x[e,d,p]) = -f[d,v];
 
-
-s.t. cd{e in E, d in D, p in P} : u[e,d,p] >= ud[e,d,p];
-
-s.t. c4f{p in P, d in D, e in E} : x[e,d,p] <= h[d]*ud[e,d,p];
-
-s.t. c6f{d in D} : sum{v in VS} f[d,v] = h[d];
-
-s.t. c4{e in E} : sum{d in D, p in P} x[e,d,p] = y[e];
-
-s.t. cc{e in E} : y[e] <= c[e];
+s.t. flow_path{e in E, d in D, p in P} : u[e,d,p] >= ud[e,d,p];
+s.t. link_flow_quantity{p in P, d in D, e in E} : x[e,d,p] <= h[d]*ud[e,d,p];
+s.t. outgoing_flow_quantity{d in D} : sum{v in VS} f[d,v] = h[d];
+s.t. link_flow{e in E} : sum{d in D, p in P} x[e,d,p] = y[e];
+s.t. link_capacity{e in E} : y[e] <= c[e];
 
 
 #-----------------------------------------------------------------------
